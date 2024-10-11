@@ -1,0 +1,112 @@
+---
+title: "Simple Salary Regression"
+date: "`r Sys.Date()`"
+author: Carter Lembo
+format: 
+  html:
+    toc: true
+---
+
+## Intro
+
+My goal here is to create a simple regression model between the years of 
+experience and salary from the Salary dataset from the user Sadiq on Kaggle[^1]
+
+[^1]: https://www.kaggle.com/datasets/rsadiq/salary
+
+## Setup
+
+I will be using packages such as dplyr and ggplot2 in the tidyverse for 
+data manipulation and visualization.
+
+```{r}
+#| label: setup
+#| output: false
+
+library(tidyverse)
+
+```
+
+## Load Data 
+
+I am loading the data from "Salary.csv" in my "data" folder. Using the glimpse
+function I can see there are 35 operations. Each row contains the years
+of experience and the salary for an individual.
+
+```{r}
+#| label: load-data
+
+salary_df <- read.csv("data/Salary.csv")
+
+salary_df |> 
+  glimpse()
+```
+## Exploration
+
+### Values
+
+While it is not specified, it seems safe to assume salary is in US dollars. 
+```{r}
+#| label: value-explore
+
+mean(salary_df$Salary)
+median(salary_df$Salary)
+range(salary_df$Salary)
+
+
+```
+
+
+
+### Visualization 
+
+We can visually explore the relationship between these two variables using a
+scatter plot. From the plot it is clear the data is roughly linear and the line
+of best fit seems like a good model.
+```{r}
+#| label: fig-years-vs-salary
+#| fig-cap: Years of Experience vs. Salary Scatterplot
+
+salary_df |> 
+  ggplot(aes(YearsExperience, Salary)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(
+    title = "Years of Experience vs Salary",
+    subtitle = "Data relating salary and experience",
+    x = "Years of Experience",
+    y = "Salary (USD)",
+    caption = "Data from user Sadiq on Kaggle (https://www.kaggle.com/datasets/rsadiq/salary)."
+  ) +
+  theme_bw()
+```
+
+## Modeling
+
+```{r}
+#| label: modeling
+
+model <- lm(Salary ~ YearsExperience, data = salary_df)
+
+model_summary <- summary(model)
+model_summary
+
+```
+
+This gives us an $R^2$ value of `r model_summary$r.squared`.
+
+## Residuals
+
+```{r}
+#| label: fig-residuals
+#| fig-cap: Residuals of Model
+broom::augment(model) |>
+  ggplot(aes(x = .fitted, y = .resid)) +
+  geom_abline(slope = 0, intercept = 0, color = "blue") +
+  geom_point() +
+  labs(x = "Predicted", y = "Residual") +
+  theme_bw()
+
+```
+
+ 
