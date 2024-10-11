@@ -5,18 +5,22 @@ author: Carter Lembo
 format: 
   html:
     toc: true
+editor: 
+  markdown: 
+    wrap: 72
 ---
 
 ## Intro
 
-My goal here is to create a simple regression model between the years of 
-experience and salary from the Salary dataset from the user Sadiq on Kaggle[^1]
+My goal here is to create a simple regression model between the years of
+experience and salary from the Salary dataset from the user Sadiq on
+Kaggle[^1]
 
 [^1]: https://www.kaggle.com/datasets/rsadiq/salary
 
 ## Setup
 
-I will be using packages such as dplyr and ggplot2 in the tidyverse for 
+I will be using packages such as dplyr and ggplot2 in the tidyverse for
 data manipulation and visualization.
 
 ```{r}
@@ -27,11 +31,11 @@ library(tidyverse)
 
 ```
 
-## Load Data 
+## Load Data
 
-I am loading the data from "Salary.csv" in my "data" folder. Using the glimpse
-function I can see there are 35 operations. Each row contains the years
-of experience and the salary for an individual.
+I am loading the data from "Salary.csv" in my "data" folder. Using the
+glimpse function I can see there are 35 operations. Each row contains
+the years of experience and the salary for an individual.
 
 ```{r}
 #| label: load-data
@@ -41,11 +45,14 @@ salary_df <- read.csv("data/Salary.csv")
 salary_df |> 
   glimpse()
 ```
+
 ## Exploration
 
 ### Values
 
-While it is not specified, it seems safe to assume salary is in US dollars. 
+Let's explore the salary values in the dataset. While it is not
+specified, it seems safe to assume salary is in US dollars.
+
 ```{r}
 #| label: value-explore
 
@@ -56,13 +63,12 @@ range(salary_df$Salary)
 
 ```
 
+### Visualization
 
+I can visually explore the relationship between these two variables
+using a scatter plot. From the plot it is clear the data is roughly
+linear and the line of best fit seems like a good model.
 
-### Visualization 
-
-We can visually explore the relationship between these two variables using a
-scatter plot. From the plot it is clear the data is roughly linear and the line
-of best fit seems like a good model.
 ```{r}
 #| label: fig-years-vs-salary
 #| fig-cap: Years of Experience vs. Salary Scatterplot
@@ -70,7 +76,7 @@ of best fit seems like a good model.
 salary_df |> 
   ggplot(aes(YearsExperience, Salary)) +
   geom_point() +
-  geom_smooth(method = "lm", se = FALSE) +
+  geom_smooth(method = "lm", formula = y ~ x, se = FALSE) +
   labs(
     title = "Years of Experience vs Salary",
     subtitle = "Data relating salary and experience",
@@ -83,6 +89,9 @@ salary_df |>
 
 ## Modeling
 
+I am creating a linear model where years of experiences are used to
+predict the salary of an employee.
+
 ```{r}
 #| label: modeling
 
@@ -93,9 +102,14 @@ model_summary
 
 ```
 
-This gives us an $R^2$ value of `r model_summary$r.squared`.
+This gives an $R^2$ value of `r model_summary$r.squared`. I can also see that
+based on a model, an increase of 1 year of experience corresponds to an 
+expected increase in salary of \$`r model_summary$coefficients[2]`
 
-## Residuals
+### Residuals
+
+Looking at the residuals I can see that there is no apparent pattern so
+the linear model is appropriate.
 
 ```{r}
 #| label: fig-residuals
@@ -109,4 +123,17 @@ broom::augment(model) |>
 
 ```
 
- 
+### Predictions
+
+Just for fun I am predicting with the model the expected salary for 3, 5, 
+and 7 years of experience.
+
+```{r}
+#| label: predictions
+
+fake_data <- data.frame(YearsExperience = c(3, 5, 7))
+
+predict.lm(model, fake_data)
+
+
+```
