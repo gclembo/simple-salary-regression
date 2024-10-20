@@ -2,16 +2,32 @@
 <html>
     <head>
         <title>Simple Salary Regression</title>
+        <link href="./style.css" rel="stylesheet">
     </head>
     <body>
-        <h1>Simple Salary Regression in R</h1>
-        <div>
-            <p> 
-                This is a simple linear regression prediciton model using data from the Salaries kaggle dataset. The link below 
-                is the markdown walking through my processes. 
+        <header>
+            <h1>Simple Salary Regression in R</h1>
+        </header>
+        <section>
+            <p class="description"> For this project I am utilizing my R programming skills to fit a linear regression model to data. 
+                This is a simple linear regression prediction model using data from the "Salary Dataset - Simple linear regression" Kaggle dataset. 
+                This dataset from user <a href="https://www.kaggle.com/abhishek14398">Allena Venkata Sai Abhishe</a> and can be found 
+                <a href="https://www.kaggle.com/datasets/abhishek14398/salary-dataset-simple-linear-regression/data" target="_blank">here</a>. 
+                This provides data describing years of experience and the salary of employees and is meant to be used to the basics of linear regression.
+                As I have seen, the data have a strong linear association. This makes a linear regression model apt for predicting employee salary based
+                on years of experience. Click below to see the code markdown walking through my processes.
             </p>
-            <img src="./simple_salary_regression_files/figure-html/fig-years-vs-salary-1.png" width="600"/><br>
-            <a href="./simple_salary_regression.html">Simple Salary Regression</a>
-        </div>
+            <figure title="Scatterplot">
+                <img src="./simple_salary_regression_files/figure-html/fig-years-vs-salary-1.png" alt="Scatterplot of Years of Experience vs. Salary" width="600"/>
+                <figcaption>Years of Experience vs. Salary Scatterplot from analysis</figcaption>
+            </figure>
+            <a class="markdown" href="./simple_salary_regression.html">Simple Salary Regression Markdown</a>  
+        </section>
+        <footer>
+            Carter Lembo |
+            gcarterlembo@gmail.com |
+            <a href="https://github.com/gclembo" target="_blank">GitHub</a> |
+            <a href="https://linkedin.com/in/carter-lembo-9128bb304" target="_blank">LinkedIn</a>
+        </footer>
     </body>
 </html>
