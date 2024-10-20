@@ -5,27 +5,19 @@ author: Carter Lembo
 format: 
   html:
     toc: true
-editor: 
-  markdown: 
-    wrap: 72
 ---
 
 ## Intro
 
-My goal here is to create a simple regression model between the years of
-experience and salary from the Salary dataset from the user Sadiq on
-Kaggle[^1]
-
-[^1]: https://www.kaggle.com/datasets/rsadiq/salary
+Having experience can be an excellent metric in evaluating the skill of an employee. Based on this assertion we would expect the number of years of experience to be correlated to the salary of an employee. How well does years of experience predict salary? My goal here is to create a simple linear regression model between the years of experience and salary from the "Salary Dataset - Simple linear regression" dataset from the user [Allena Venkata Sai Abhishe](https://www.kaggle.com/abhishek14398) on [Kaggle](https://www.kaggle.com/datasets/abhishek14398/salary-dataset-simple-linear-regression). This dataset was created to help teach linear regression.
 
 ## Setup
 
-I will be using packages such as dplyr and ggplot2 in the tidyverse for
-data manipulation and visualization.
+I will be using packages such as dplyr and ggplot2 in the tidyverse for data manipulation and visualization.
 
 ```{r}
 #| label: setup
-#| output: false
+#| include: false
 
 library(tidyverse)
 
@@ -33,14 +25,12 @@ library(tidyverse)
 
 ## Load Data
 
-I am loading the data from "Salary.csv" in my "data" folder. Using the
-glimpse function I can see there are 35 operations. Each row contains
-the years of experience and the salary for an individual.
+I am loading the data from "Salary_dataset.csv" in my "data" folder. Using the glimpse function I can see there are 30 observations. Each row contains the years of experience, the salary for an individual, and an id column.
 
 ```{r}
 #| label: load-data
 
-salary_df <- read.csv("data/Salary.csv")
+salary_df <- read.csv("data/Salary_dataset.csv")
 
 salary_df |> 
   glimpse()
@@ -48,26 +38,43 @@ salary_df |>
 
 ## Exploration
 
-### Values
+### Salaries
 
-Let's explore the salary values in the dataset. While it is not
-specified, it seems safe to assume salary is in US dollars.
+Let's explore the salary values in the dataset. While it is not specified for the dataset, the profile of the user who posted this dataset is from the UK so the salaries may be in Pounds. To see the distibution of this variable, I am using a histogram. To find a good number of bins I am using the formula $\lceil \log_2(n) \rceil$ where n is the number of observations, in this case 30.
 
 ```{r}
-#| label: value-explore
+#| label: fig-sal-dist
+#| fig-cap: Distribution of Salaries
 
-mean(salary_df$Salary)
-median(salary_df$Salary)
-range(salary_df$Salary)
+salary_df |> 
+  ggplot(aes(Salary)) +
+  geom_histogram(bins = 5, fill = "lightblue") +
+  labs(
+    title = "Distribution of salaries",
+    x = "Salary",
+    y = "Count"
+  ) +
+  theme_bw()
 
+
+salary_df |> 
+  summarise(
+    mean_sal = mean(Salary),
+    sd_sal = sd(Salary),
+    median_sal = median(Salary),
+    iqr_sal = IQR(Salary),
+    min_sal = min(Salary),
+    max_sal = max(Salary)
+  ) |> 
+  knitr::kable()
 
 ```
 
-### Visualization
+Since there are few observations, the histogram is not very smooth but we can see a somewhat bimodal distribution with a larger spike around 60000 and a smaller one around 110000. Overall the distribution is fairly symmetric with slight skewness to the right. The median salary is `r format(median(salary_df$Salary), scientific = FALSE)` with an IQR of `r format(IQR(salary_df$Salary), scientific = FALSE)`.
 
-I can visually explore the relationship between these two variables
-using a scatter plot. From the plot it is clear the data is roughly
-linear and the line of best fit seems like a good model.
+### Linear Association
+
+I can visually explore the relationship between these two variables using a scatter plot. From the plot it is clear the data is linear and the line of best fit seems like a good model.
 
 ```{r}
 #| label: fig-years-vs-salary
@@ -81,16 +88,16 @@ salary_df |>
     title = "Years of Experience vs Salary",
     subtitle = "Data relating salary and experience",
     x = "Years of Experience",
-    y = "Salary (USD)",
-    caption = "Data from user Sadiq on Kaggle (https://www.kaggle.com/datasets/rsadiq/salary)."
+    y = "Salary",
+    caption = "Data from user Allena Venkata Sai Abhishe on Kaggle 
+    https://www.kaggle.com/datasets/abhishek14398/salary-dataset-simple-linear-regression."
   ) +
   theme_bw()
 ```
 
 ## Modeling
 
-I am creating a linear model where years of experiences are used to
-predict the salary of an employee.
+I am creating a linear model where years of experiences are used to predict the salary of an employee.
 
 ```{r}
 #| label: modeling
@@ -102,14 +109,11 @@ model_summary
 
 ```
 
-This gives an $R^2$ value of `r model_summary$r.squared`. I can also see that
-based on a model, an increase of 1 year of experience corresponds to an 
-expected increase in salary of \$`r model_summary$coefficients[2]`
+This gives an $R^2$ value of `r model_summary$r.squared` which confirms there is a strong correlation between the two variables. I can also see out model has a y-intercept of `r model_summary$coefficients[1]` and a slope of `r model_summary$coefficients[2]`.
 
 ### Residuals
 
-Looking at the residuals I can see that there is no apparent pattern so
-the linear model is appropriate.
+Looking at the residuals I can see that there is no apparent pattern so the linear model is appropriate.
 
 ```{r}
 #| label: fig-residuals
@@ -125,8 +129,7 @@ broom::augment(model) |>
 
 ### Predictions
 
-Just for fun I am predicting with the model the expected salary for 3, 5, 
-and 7 years of experience.
+Just for fun I am predicting with the model the expected salary for 3, 5, and 7 years of experience.
 
 ```{r}
 #| label: predictions
@@ -137,3 +140,9 @@ predict.lm(model, fake_data)
 
 
 ```
+
+## Conclusion
+
+From the data I determined that salary could be predicted by years of experience with the linear equation $\hat{y} = (9450.0) \hat{x} + 24848.2$.
+Based on this model, an increase of 1 year of experience corresponds to an expected increase in salary of `r round(model_summary$coefficients[2], digits = 2)` for this dataset. So it seems years of experience is an important predictor for an employee's salary. However, because I do not know the origin of this data, these results cannot be generalized to a population.
+
